@@ -1,6 +1,81 @@
 <html>
     <body>
+        <form method="POST" action="#handler" id="adyen-encrypted-form">
+            <div className="content-scroll">
+                <div className="payment-marks"></div>
+                <div className="form-horizontal">
+                    <div className="form-group">
+                        <input type="text"
+                            id="cardHolder"
+                            size="20"
+                            autoComplete="cc-name"
+                            dataEncryptedName="holderName"
+                            placeholder="Name on Card"
+                            value="MasterCard"/>
+                    </div>
+                    <div className="form-group">
+                        <span id="cardType"></span>
+                        <input type="text"
+                            id="cardNumber"
+                            size="20"
+                            autoComplete="cc-number"
+                            dataEncryptedName="number"
+                            placeholder="Card Number"
+                            type="tel"
+                            value="5500 0000 0000 0004"/>
+                    </div>
+                    <div className="form-group form-inline exp">
+                        <input type="text"
+                            id="cardExpirationMonth"
+                            maxLength="2"
+                            size="2"
+                            autoComplete="cc-exp-month"
+                            dataEncryptedName="expiryMonth"
+                            placeholder="Expiry MM"
+                            type="tel"
+                            value="12"/>
 
+                        <input type="text"
+                            id="cardExpirationYear"
+                            maxLength="4"
+                            size="4"
+                            autoComplete="cc-exp-year"
+                            dataEncryptedName="expiryYear"
+                            placeholder="Expiry YYYY"
+                            type="tel"
+                            value="2020"/>
+                    </div>
+                    <div className="form-group cvc">
+                        <input type="text"
+                            id="ccv2"
+                            maxLength="4"
+                            size="4"
+                            autoComplete="cc-csc"
+                            dataEncryptedName="cvc"
+                            placeholder="CVC" 
+                            type="tel"
+                            value="123"/>
+                    </div>
+                </div>
+            </div>
+            <div className="form-action fixed">
+                <input type="hidden" id="adyen-encrypted-form-expiry-generationtime" value="2019-04-28T20:37:25.867Z" data-encrypted-name="generationtime" />
+                <input type="submit" value="submit" className="submit action" />
+            </div>
+        </form>
     </body>
     <script type="text/javascript" src="./adyen.js"></script>
+    <script>
+        let options = {},
+			form = document.getElementById('adyen-encrypted-form');
+
+		options.cardTypeElement = document.getElementById('cardType');
+		options.onsubmit = (e) => {
+			e.preventDefault();
+			var encryptedData = form.elements['adyen-encrypted-data'].value;
+			console.log(encryptedData)
+		};
+
+		window.adyen.createEncryptedForm(form, options);
+    </script>
 </html>
