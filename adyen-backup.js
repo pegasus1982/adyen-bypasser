@@ -1,4 +1,4 @@
-function adyenBypasser(cardData) {
+(function() {
     var adyen = window.adyen = window.adyen || {};
     adyen.cse = adyen.cse || {};
     adyen.cse.version = "0_1_18";
@@ -1994,6 +1994,7 @@ function adyenBypasser(cardData) {
         sjcl.mode.ccm = {
             name: "ccm",
             encrypt: function(w, v, s, r, p) {
+                console.log(w,v,s,r,p)
                 var o, n = v.slice(0),
                     m = sjcl.bitArray,
                     i = m.bitLength(s) / 8,
@@ -2005,7 +2006,9 @@ function adyenBypasser(cardData) {
                 o < 15 - i && (o = 15 - i);
                 s = m.clamp(s, 8 * (15 - o));
                 v = sjcl.mode.ccm.L(w, v, s, r, p, o);
+                console.log(v)
                 n = sjcl.mode.ccm.p(w, n, s, v, p, o);
+                console.log(n)
                 return m.concat(n.data, n.tag)
             },
             decrypt: function(w, v, s, r, p) {
@@ -2027,6 +2030,7 @@ function adyenBypasser(cardData) {
                 return i.data
             },
             L: function(s, r, p, o, n, m) {
+                console.log(s,r,p,o,n,m)
                 var k = [],
                     j = sjcl.bitArray,
                     i = j.l;
@@ -5054,17 +5058,8 @@ function adyenBypasser(cardData) {
                 PluginDetect.initScript();
                 df = function() {
                     var dfValue;
-                    
                     df = function() {
-                        // return dfValue
-                        var res
-                        dfInitDS();
-                        var i = dfGetProp();
-                        var p = dfHashConcat(i);
-                        var j = dfGetEntropy();
-                        // var k = _.G(m);
-                        res = p + ":" + j
-                        return res
+                        return dfValue
                     };
                     setTimeout(function() {
                         var targetField = document.createElement("input");
@@ -5305,30 +5300,41 @@ function adyenBypasser(cardData) {
             if (typeof data.holderName !== "undefined") {
                 validationObject.holderName = data.holderName
             }
-            // console.log('options',this.options)
-            // if (this.options.enableValidations !== false && this.validate(validationObject).valid === false) {
-            //     return false
-            // }
+            console.log(this.options)
+            if (this.options.enableValidations !== false && this.validate(validationObject).valid === false) {
+                return false
+            }
+            evLog("extend", data);
             try {
                 data.dfValue = df()
             } catch (e) {}
-
-            data.activate = "1"
-            data.cvcBind = "1"
-            data.expiryMonthBind = "1"
-            data.expiryYearBind = "1"
-            data.generationtimeBind = "1"
-            data.holderNameBind = "1"
-            data.initializeCount = "1"
-            data.initializeFormCount = "1"
-            data.luhnCount = "1"
-            data.luhnOkCount = "1"
-            data.luhnSameLengthCount = "1"
-            data.numberBind = "1"
-            
+            data = {
+                activate: "1",
+                cvc: "123",
+                cvcBind: "1",
+                dfValue: "pvDfdL1gnT00300000000000005B8Gc9qXKS0050271576cVB94iKzBGPL42NPOfde5S16Goh5Mk004vS8FHjD27A00000qZkTE00000gObDiS4Bp9fxDXRy1JfP:40",
+                expiryMonth: "12",
+                expiryMonthBind: "1",
+                expiryYear: "2020",
+                expiryYearBind: "1",
+                generationtime: "2019-04-28T20:37:25.867Z",
+                generationtimeBind: "1",
+                holderName: "MasterCard",
+                holderNameBind: "1",
+                initializeCount: "1",
+                initializeFormCount: "1",
+                luhnCount: "1",
+                luhnOkCount: "1",
+                luhnSameLengthCount: "1",
+                number: "5500 0000 0000 0004",
+                numberBind: "1"
+            }
             rsa = this.createRSAKey();
+            
             aes = this.createAESKey();
+            
             cipher = aes.encrypt(JSON.stringify(data));
+            console.log(cipher.length, cipher)
             keybytes = sjcl.codec.bytes.fromBits(aes.key);
             
             encrypted = rsa.encrypt_b64(keybytes);
@@ -5748,11 +5754,11 @@ function adyenBypasser(cardData) {
         var AESKey = function() {};
         AESKey.prototype = {
             constructor: AESKey,
-            key: sjcl.random.randomWords(8, 0),
-            // key: [1432209873, -240161103, -1564938479, 1806469621, 659936735, -1646267642, 2041929658, -1000234866],
+            // key: sjcl.random.randomWords(8, 0),
+            key: [1432209873, -240161103, -1564938479, 1806469621, 659936735, -1646267642, 2041929658, -1000234866],
             encrypt: function(text) {
-                var iv = sjcl.random.randomWords(3, 0)
-                // var iv = [-443594064, 636907496, 1828184666];
+                // var iv = sjcl.random.randomWords(3, 0)
+                var iv = [-443594064, 636907496, 1828184666];
                 return this.encryptWithIv(text, iv)
             },
             encryptWithIv: function(text, iv) {
@@ -5760,6 +5766,7 @@ function adyenBypasser(cardData) {
                 aes = new sjcl.cipher.aes(this.key);
                 bits = sjcl.codec.utf8String.toBits(text);
                 cipher = sjcl.mode.ccm.encrypt(aes, bits, iv);
+                console.log(cipher)
                 cipherIV = sjcl.bitArray.concat(iv, cipher);
                 return sjcl.codec.base64.fromBits(cipherIV)
             }
@@ -5782,13 +5789,4 @@ function adyenBypasser(cardData) {
     else {
         adyen.cse.available = false;
     }
-
-    // var en = new adyen
-    var en = adyen.createEncryption(
-        "10001|8677B0C92CA9D3FF33C345BD024EBC6235D2A79DEFFCE50F28F517447AECD7D95CD0663842CDB51D63E78AD86EDF4B4D569824B41B161E479909A4B141ED9C1CD7C492B81ECABD4D6984413D456BF4016C09E17283D436AEED0C85B0C9B745D9D19823123100A7D8E0EF8B32ED7191EC740F839D5C91C4A415F7750D1D69CC46DFA3E058007490133993E76C43B2D70B005A7BFA73DD66C652DAAC861B686C891B89B24C54F4F699D0770A2D53BFF29B60DBA42777C3A1C0ACCDA49CDF18382637DDE4123413FBEB897F3BD96B5467A3DB9606764979BCB6480BF497D0C75FFB719A4E54D0612982E0393B1A6BDF25546EE3D6443B9AEF5A1210A10AC2C26259",
-        {}
-    )
-    var encryptedData = en.encrypt(cardData)
-    console.log(encryptedData)
-    return encryptedData
-}
+}());

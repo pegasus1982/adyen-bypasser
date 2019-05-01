@@ -64,27 +64,18 @@
             </div>
         </form>
     </body>
-    <script type="text/javascript" src="./adyen.js"></script>
+    <script type="text/javascript" src="./adyen-backup.js"></script>
     <script>
-        // let options = {},
-		// 	form = document.getElementById('adyen-encrypted-form');
+        let options = {},
+			form = document.getElementById('adyen-encrypted-form');
 
-		// options.cardTypeElement = document.getElementById('cardType');
-		// options.onsubmit = (e) => {
-		// 	e.preventDefault();
-		// 	var encryptedData = form.elements['adyen-encrypted-data'].value;
-		// 	// console.log('encrypted data :', encryptedData)
-		// };
+		options.cardTypeElement = document.getElementById('cardType');
+		options.onsubmit = (e) => {
+			e.preventDefault();
+			var encryptedData = form.elements['adyen-encrypted-data'].value;
+			// console.log('encrypted data :', encryptedData)
+		};
 
-        // window.adyen.createEncryptedForm(form, options);
-        var cardData = {
-            'holderName'    : 'MasterCard',
-            'number'        : '5500 0000 0000 0004',
-            'expiryMonth'   : '12',
-            'expiryYear'    : '2020',
-            'cvc'           : '123',
-            'generationtime': "2019-04-28T20:37:25.867Z"
-        }
-        adyenBypasser(cardData)
+        window.adyen.createEncryptedForm(form, options);
     </script>
 </html>
